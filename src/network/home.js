@@ -4,3 +4,13 @@ export function  getHomeMutiData(){
     url: '/home/multidata'
   })
 }
+
+export function getHomeGoods(page,type){
+  return fetch({
+    url: '/home/data',
+    params:{
+      type,
+      page
+    }
+  })
+}
