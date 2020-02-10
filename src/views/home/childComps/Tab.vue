@@ -2,7 +2,9 @@
   <div class="my-tab">
     <!-- <van-sticky :offset-top="44"> -->
       <van-tabs v-model="active" @click="homeTabClickHandel">
-        <van-tab v-for="title in titles" :title="title" :key ="title"></van-tab>
+        <van-tab v-for="title in titles" :title="title" :key ="title">
+          
+        </van-tab>
       </van-tabs>
   <!-- </van-sticky> -->
   </div>
@@ -20,7 +22,7 @@ export default {
   },
   filters:{
     getCategory(index){
-      let char='cell'
+      let char='sell'
       if(index===0){
         char='pop'
       }else if(index===1){

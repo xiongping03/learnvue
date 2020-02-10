@@ -1,35 +1,27 @@
 <template>
-  <div>
+  <div class="home">
     <!-- 标题-->
-    <van-nav-bar title="首页" fixed/>
-    <!-- 轮播图-->
-    <swiper :banners='banners' />
-    <!-- 每日推荐 -->
-    <recommend :recommends="recommends"/>
-    <!-- 精选 -->
-    <feature/>
-    <!-- 选项卡 -->
-    <tab @homeTabClick='homeTabClickHandel'/>
+    <van-nav-bar title="首页"/>
+		<!-- 用了van-cell 导致我的选项卡不吸附 -->
+    <scroll class="srcoll" ref = 'scroll' :probeType='3' :click='true'
+      @scroll='scroll' @pullingUp='loadMore'>
+      <!-- 轮播图-->
+      <swiper :banners='banners' />
+      <!-- 每日推荐 -->
+      <recommend :recommends="recommends"/>
+      <!-- 精选 -->
+      <feature/>
+      <!-- 选项卡 -->
+      <tab @homeTabClick='homeTabClickHandel'/>
 
-    <goods-list :goodsdata="clothes" class="srcoll"></goods-list>
-    <!-- 滑动入坑指南，不要设置div高度，除非使用其他插件，用了van-cell 导致我的选项卡不吸附 -->
-    <!-- <div class="gundong">
-        <van-list
-                 v-model="loading"
-                 :finished="finished"
-                 finished-text="没有更多了"
-                 @load="onLoad"
-               >
-                 <div v-for="item in list" :key="item" >{{ item }}</div>
-               </van-list>
-     </div> -->
-
-
+      <goods-list :goodsdata="clothes"/>
+    </scroll>
+    <back-top @click.native = 'backtop' v-show="showBackTop"/>
   </div>
 </template>
 
 <script>
-import { NavBar ,List ,Cell} from 'vant';
+import { NavBar } from 'vant';
 
 import Swiper from './childComps/Swiper'
 import Recommend from './childComps/Recommend'
@@ -37,15 +29,15 @@ import Feature from './childComps/Feature'
 import Tab from './childComps/Tab'
 
 import GoodsList from 'components/content/goods/GoodsList.vue'
+import Scroll from 'components/common/Scroll.vue'
+import BackTop from 'components/content/BackTop.vue'
 
 import { getHomeMutiData, getHomeGoods } from '../../network/home.js'
+import { debounce }  from 'common/utils.js'
 export default {
   name: 'Home',
   data(){
     return {
-      list: [],
-      loading: false,
-      finished: false,
       banners:[],
       recommends:[],
       goods:{
@@ -62,24 +54,13 @@ export default {
           list:[]
         }
       },
-      category:'pop'
+      category:'pop',
+      showBackTop:false
     }
   },
   methods: {
-      onLoad(){
-         setTimeout(() => {
-                for (let i = 0; i < 10; i++) {
-                  this.list.push(this.list.length + 1);
-                }
-
-                // 加载状态结束
-                this.loading = false;
-
-                // 数据全部加载完成
-                if (this.list.length >= 40) {
-                  this.finished = true;
-                }
-              }, 1000);
+      loadMore(){
+        this.getHomeGoodsHandel(this.category)
       },
       getHomeMutiDataHandel(){
         getHomeMutiData().then(res =>{
@@ -91,12 +72,20 @@ export default {
         let {pageIndex} = this.goods[type]
         getHomeGoods(pageIndex+1,type).then(res=>{
           this.goods[type].pageIndex = pageIndex+1
-          this.goods[type].list = this.goods[type].list.concat(res.data.list)
+          this.goods[type].list.push(...res.data.list)
+          this.$refs.scroll.finishPullUp()
         })
       },
       homeTabClickHandel(index){
         this.category = index
+      },
+      backtop(){
+        this.$refs.scroll.scrollTo(0, 0)
+      },
+      scroll(pos){
+        this.showBackTop = -pos.y>1000
       }
+
 
   },
   computed:{
@@ -106,13 +95,13 @@ export default {
   },
   components:{
     [NavBar.name]: NavBar,
-    [List.name]: List,
-    [Cell.name]: Cell,
     Swiper,
     Recommend,
     Feature,
     Tab,
-    GoodsList
+    GoodsList,
+    Scroll,
+    BackTop
   },
   created() {
     //请求首页数据
@@ -122,6 +111,13 @@ export default {
     this.getHomeGoodsHandel('new')
     this.getHomeGoodsHandel('sell')
 
+  },
+  mounted() {
+
+    let refresh = debounce(this.$refs.scroll.refresh,300)
+    this.$bus.$on('imageLoad',()=>{
+         refresh()
+    })
   }
 }
 </script>
@@ -131,7 +127,12 @@ export default {
   background-color:#EE0A24;
   height: 44px;
 }
+.home{
+  height: 100vh;
+  position: relative;
+}
 .srcoll{
-  margin-bottom: 49px;
+  height:calc(100% - 93px);
+  overflow: hidden;
 }
 </style>

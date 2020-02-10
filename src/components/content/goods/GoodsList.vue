@@ -2,7 +2,7 @@
   <div class="goodslist">
     <div v-for="(item,index) in goodsdata" :key="index" class="goodslist-item">
 
-      <div class="image"><img :src="item.show.img"/></div>
+      <img :src="item.show.img" @load = 'load'/>
 
       <div class="bottom">
         <div class="title">{{ item.title }}</div>
@@ -16,8 +16,15 @@
 </template>
 
 <script>
+
 export default {
   name: 'GoodsList',
+  methods:{
+    load(){
+      //事件总线发射一个图片加载完成事件
+      this.$bus.$emit('imageLoad')
+    }
+  },
   props:{
     goodsdata:{
       type:Array,
