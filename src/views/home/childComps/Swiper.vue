@@ -2,7 +2,7 @@
   <div>
     <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
       <van-swipe-item v-for="(item,index) in banners" :key='index'>
-        <img :src="item.image" />
+        <img :src="item.image" @load="imageLoad"/>
       </van-swipe-item>
     </van-swipe>
   </div>
@@ -16,6 +16,11 @@ export default {
     banners:{
       type:Array,
       default:[]
+    }
+  },
+  methods:{
+    imageLoad(){
+      this.$emit('imageLoad')
     }
   },
   components:{

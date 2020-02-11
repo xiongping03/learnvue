@@ -2,17 +2,20 @@
   <div class="home">
     <!-- 标题-->
     <van-nav-bar title="首页"/>
+    <div class='tab' :class="{active:tabShow}">
+      <tab @homeTabClick='homeTabClickHandel1' ref = 'tab1' />
+    </div>
 		<!-- 用了van-cell 导致我的选项卡不吸附 -->
     <scroll class="srcoll" ref = 'scroll' :probeType='3' :click='true'
       @scroll='scroll' @pullingUp='loadMore'>
       <!-- 轮播图-->
-      <swiper :banners='banners' />
+      <swiper :banners='banners' @imageLoad='imageLoad'/>
       <!-- 每日推荐 -->
       <recommend :recommends="recommends"/>
       <!-- 精选 -->
       <feature/>
       <!-- 选项卡 -->
-      <tab @homeTabClick='homeTabClickHandel'/>
+      <tab @homeTabClick='homeTabClickHandel2' ref = 'tab2' />
 
       <goods-list :goodsdata="clothes"/>
     </scroll>
@@ -55,7 +58,9 @@ export default {
         }
       },
       category:'pop',
-      showBackTop:false
+      showBackTop:false,
+      tabOffsetTop:0,
+      tabShow:false
     }
   },
   methods: {
@@ -76,17 +81,41 @@ export default {
           this.$refs.scroll.finishPullUp()
         })
       },
-      homeTabClickHandel(index){
-        this.category = index
+      homeTabClickHandel2(index){
+        this.$refs.tab1.active = index
+        this.category = this.$options.filters.getCategory(index)
+        this.$refs.scroll.scrollTo(0, 44-this.tabOffsetTop)
+
+      },
+      homeTabClickHandel1(index){
+        this.$refs.tab2.active = index
+        this.category = this.$options.filters.getCategory(index)
+        this.$refs.scroll.scrollTo(0, 44-this.tabOffsetTop)
+
       },
       backtop(){
         this.$refs.scroll.scrollTo(0, 0)
       },
       scroll(pos){
+        this.tabShow =  -pos.y>(this.tabOffsetTop-44)
         this.showBackTop = -pos.y>1000
+      },
+      imageLoad(){
+        this.tabOffsetTop = this.$refs.tab2.$el.offsetTop
       }
 
 
+  },
+  filters:{
+    getCategory(index){
+      let char='sell'
+      if(index===0){
+        char='pop'
+      }else if(index===1){
+        char='new'
+      }
+      return char
+    }
   },
   computed:{
     clothes(){
@@ -134,5 +163,15 @@ export default {
 .srcoll{
   height:calc(100% - 93px);
   overflow: hidden;
+}
+.tab{
+  position: absolute;
+  z-index: 0;
+  width: 100%;
+  visibility:hidden;
+}
+.active{
+  z-index: 1;
+  visibility:visible;
 }
 </style>

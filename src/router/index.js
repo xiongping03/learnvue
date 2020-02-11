@@ -4,6 +4,7 @@ const Home = ()=> import('../views/home/Home')
 const Profile = ()=> import('../views/profile/Profile')
 const Category = ()=> import('../views/category/Category')
 const Cart = ()=> import('../views/cart/Cart')
+const Detail = ()=> import('../views/detail/Detail')
 
 Vue.use(Router)
 
@@ -14,19 +15,43 @@ const routes = [
     },
     {
       path:'/home',
-      component:Home
+      component:Home,
+      name: '首页',
+      meta: {
+        keepAlive: true // 不需要缓存
+       }
     },
     {
       path:'/profile',
-      component:Profile
+      component:Profile,
+      name: '用户信息',
+      meta: {
+        keepAlive: false // 不需要缓存
+       }
     },
     {
-      path:'/Category',
+      path:'/category',
       component:Category,
-      },
+      name: '商品分类',
+      meta: {
+        keepAlive: false // 不需要缓存
+       }
+    },
     {
-      path:'/Cart',
-      component:Cart
+      path:'/cart',
+      component:Cart,
+      name: '购物车',
+      meta: {
+        keepAlive: false // 不需要缓存
+       }
+    },
+    {
+      path:'/detail/:iid',
+      component:Detail,
+      name: '详情页',
+      meta: {
+        keepAlive: false // 不需要缓存
+       }
     }
   ]
 export default new Router({

@@ -1,6 +1,6 @@
 <template>
   <div class="goodslist">
-    <div v-for="(item,index) in goodsdata" :key="index" class="goodslist-item">
+    <div v-for="(item,index) in goodsdata" :key="index" class="goodslist-item" @click='detailClick(item)'>
 
       <img :src="item.show.img" @load = 'load'/>
 
@@ -23,6 +23,10 @@ export default {
     load(){
       //事件总线发射一个图片加载完成事件
       this.$bus.$emit('imageLoad')
+    },
+    detailClick(item){
+      //this.$router.push('/detail/'+item.iid)
+      this.$router.push(`/detail/${item.iid}`)
     }
   },
   props:{
